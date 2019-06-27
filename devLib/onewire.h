@@ -47,17 +47,17 @@ extern "C"
 #endif
     extern uint64_t OneWireSearchNextAddress(uint8_t instId, uint64_t lastAddress, int *lastDiscrepancy, uint8_t* is_error);
     extern int OneWireReset(uint8_t instId);
-    extern int OneWireCrcCheck(unsigned long long int data8x8bit, uint8_t len);
+    extern int OneWireCrcCheck(uint64_t data8x8bit, uint8_t len);
     extern uint8_t OneWireCrc8(unsigned char addr[], unsigned int len);
     extern uint8_t OneWireOneWireInit(uint8_t dataPin, uint8_t skipSetup, uint8_t instId);
     extern void OneWireWriteBit(uint8_t instId, uint8_t bit);
     extern void OneWireWriteByte(uint8_t instId, uint8_t byte);
-    extern int OneWireSetDevice(uint8_t instId, unsigned long long int rom);
+    extern int OneWireSetDevice(uint8_t instId, uint64_t rom);
     extern uint8_t OneWireSearchRom(uint8_t instId);
     extern int OneWireSkipRom(uint8_t instId);
     extern uint8_t OneWireReadByte(uint8_t instId);
     extern uint8_t OneWireReadBit(uint8_t instId);
-    extern unsigned long long int OneWireReadRoom(uint8_t instId);
+    extern uint64_t OneWireReadRoom(uint8_t instId);
     extern unsigned long long int OneWireGetRomsCnt();
     extern unsigned long long int OneWireGetRom(int idx);
 #ifdef __cplusplus

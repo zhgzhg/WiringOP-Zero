@@ -1,0 +1,9 @@
+wiringPi/*.o
+wiringPi/*.so
+wiringPi/*.so.*
+gpio/*.o
+gpio/gpio
+devLib/*.o
+devLib/*.so
+devLib/*.so.*
+

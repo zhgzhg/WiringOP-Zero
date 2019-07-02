@@ -1,7 +1,7 @@
 /*
  * wiringPiSPI.c:
  *	Simplified SPI access routines
- *	Copyright (c) 2012 Gordon Henderson
+ *	Copyright (c) 2012-2015 Gordon Henderson
  ***********************************************************************
  * This file is part of wiringPi:
  *	https://projects.drogon.net/raspberry-pi/wiringpi/
@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <asm/ioctl.h>
 #include <linux/spi/spidev.h>
 
 #include "wiringPi.h"
@@ -38,10 +39,10 @@
 // The SPI bus parameters
 //	Variables as they need to be passed as pointers later on
 
-const static char       *spiDev0  = "/dev/spidev0.0" ;
-const static char       *spiDev1  = "/dev/spidev1.0" ;
-const static uint8_t     spiBPW   = 8 ;
-const static uint16_t    spiDelay = 0 ;
+static const char       *spiDev0  = "/dev/spidev0.0" ;
+static const char       *spiDev1  = "/dev/spidev1.0" ;
+static const uint8_t     spiBPW   = 8 ;
+static const uint16_t    spiDelay = 18 ;
 
 static uint32_t    spiSpeeds [2] ;
 static int         spiFds [2] ;
@@ -91,8 +92,8 @@ int wiringPiSPIDataRW (int channel, unsigned char *data, int len)
 
 
 /*
- * wiringPiSPISetup:
- *	Open the SPI device, and set it up, etc.
+ * wiringPiSPISetupMode:
+ *	Open the SPI device, and set it up, with the mode, etc.
  *********************************************************************************
  */
 
@@ -100,8 +101,8 @@ int wiringPiSPISetupMode (int channel, int speed, int mode)
 {
   int fd ;
 
-  mode    &= 3 ; // Mode is 0, 1, 2 or 3
-  channel &= 1 ;
+  mode    &= 3 ;	// Mode is 0, 1, 2 or 3
+  channel &= 1 ;	// Channel is 0 or 1
 
   if ((fd = open (channel == 0 ? spiDev0 : spiDev1, O_RDWR)) < 0)
     return wiringPiFailure (WPI_ALMOST, "Unable to open SPI device: %s\n", strerror (errno)) ;
@@ -111,7 +112,7 @@ int wiringPiSPISetupMode (int channel, int speed, int mode)
 
 // Set SPI parameters.
 
-  if (ioctl (fd, SPI_IOC_WR_MODE, &mode)         < 0)
+  if (ioctl (fd, SPI_IOC_WR_MODE, &mode)            < 0)
     return wiringPiFailure (WPI_ALMOST, "SPI Mode Change failure: %s\n", strerror (errno)) ;
   
   if (ioctl (fd, SPI_IOC_WR_BITS_PER_WORD, &spiBPW) < 0)
@@ -123,7 +124,14 @@ int wiringPiSPISetupMode (int channel, int speed, int mode)
   return fd ;
 }
 
+
+/*
+ * wiringPiSPISetup:
+ *	Open the SPI device, and set it up, etc. in the default MODE 0
+ *********************************************************************************
+ */
+
 int wiringPiSPISetup (int channel, int speed)
 {
-  return wiringPiSPISetupMode(channel, speed, 0);
+  return wiringPiSPISetupMode (channel, speed, 0) ;
 }

@@ -2560,6 +2560,7 @@ int waitForInterrupt (int pin, int mS)
   int fd, x ;
   uint8_t c ;
   struct pollfd polls ;
+  int ret;
 
   /**/ if (wiringPiMode == WPI_MODE_PINS)
     pin = pinToGpio_BP [pin] ;

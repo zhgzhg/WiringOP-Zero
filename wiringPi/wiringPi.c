@@ -2578,11 +2578,16 @@ int waitForInterrupt (int pin, int mS)
 
   x = poll (&polls, 1, mS) ;
 
-// Do a dummy read to clear the interrupt
+// If no error, do a dummy read to clear the interrupt
 //	A one character read appars to be enough.
-  
-  lseek(fd, 0, SEEK_SET) ;
-  (void)read (fd, &c, 1) ;
+
+  if (x > 0)
+  {
+    lseek (fd, 0, SEEK_SET) ;	// Rewind
+    ret = read (fd, &c, 1) ;	// Read & clear
+   if (ret < 0)
+  	return -1;
+  }
 
   return x ;
 }

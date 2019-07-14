@@ -4,7 +4,7 @@ WiringPi / WiringOP libary for the Orange Pi Zero with 26 pin GPIO header
 
 This is a modified WiringPi for specially OrangePi Zero. 
 
-GPIO is fully working, i2c not tested yet!
+GPIO is fully working!
 
     SPI is tested on Armbian with legacy kernel:
         The SPI channel 0 is used for SPI Flash and channel 1 is available

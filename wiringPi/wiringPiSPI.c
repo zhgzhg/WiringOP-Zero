@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <stdio.h>
 #include <sys/ioctl.h>
 #include <asm/ioctl.h>
 #include <linux/spi/spidev.h>
@@ -88,6 +89,44 @@ int wiringPiSPIDataRW (int channel, unsigned char *data, int len)
   spi.bits_per_word = spiBPW ;
 
   return ioctl (spiFds [channel], SPI_IOC_MESSAGE(1), &spi) ;
+}
+
+/*
+ * wiringPiSPISetupModePort:
+ * 	A non-standard function to improve setup flexibility.
+ * 	Open the SPI device, and set it up, with the mode, port, etc.
+ *********************************************************************************
+ */
+
+int wiringPiSPISetupModePort(int channel, int speed, int mode, int port)
+{
+  char spiDev[24];
+  int fd ;
+
+  mode    &= 3 ;	// Mode is 0, 1, 2 or 3
+  channel &= 1 ;	// Channel is 0 or 1
+
+  if (snprintf(spiDev, sizeof spiDev, "/dev/spidev%d.%d", channel, port) < 0)
+    return wiringPiFailure (WPI_ALMOST, "Unable to prepare /dev/spidev for channel %d and port %d", channel, port);
+
+  if ((fd = open (spiDev, O_RDWR)) < 0)
+    return wiringPiFailure (WPI_ALMOST, "Unable to open SPI device %s: %s\n", spiDev, strerror (errno)) ;
+
+  spiSpeeds [channel] = speed ;
+  spiFds    [channel] = fd ;
+
+// Set SPI parameters.
+
+  if (ioctl (fd, SPI_IOC_WR_MODE, &mode)            < 0)
+    return wiringPiFailure (WPI_ALMOST, "SPI Mode Change failure: %s\n", strerror (errno)) ;
+  
+  if (ioctl (fd, SPI_IOC_WR_BITS_PER_WORD, &spiBPW) < 0)
+    return wiringPiFailure (WPI_ALMOST, "SPI BPW Change failure: %s\n", strerror (errno)) ;
+
+  if (ioctl (fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed)   < 0)
+    return wiringPiFailure (WPI_ALMOST, "SPI Speed Change failure: %s\n", strerror (errno)) ;
+
+  return fd ;
 }
 
 
